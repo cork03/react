@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { createGlobalStyle } from 'styled-components';
+
 
 const Container = styled.div`
   display: flex;
@@ -8,18 +10,33 @@ const Container = styled.div`
   height: 100vh;
 `;
 
-
-
+const GlobalStyle = createGlobalStyle`
+ html {
+    font-family: 'Lato', 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Sans-Serif;
+    line-height: 1.5;
+    font-size: 15px;
+    font-weight: 400:
+  }
+  body {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+  }
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+  h1 {
+    font-size: 1.2rem;
+  }
+`;
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     return(
-      <Container>
-        <Main />
-      </Container>
+        <Container>
+          <GlobalStyle />
+          <Main />
+        </Container>
     );
   }
 }
@@ -30,19 +47,19 @@ export default App;
 // Cellコンポーネント
 
 const Cell = styled.td`
-background: #fefefe;
-height: 48px;
-width: 48px;
-cursor: pointer;
-font-size: 2rem;
-&.js-no-mark{
-  pointer-events: none;
-}
+  background: #fefefe;
+　height: 48px;
+　width: 48px;
+　cursor: pointer;
+　font-size: 2rem;
+　&.js-no-mark{
+　　 pointer-events: none;
+　}　　
 `;
 
 function Cells(props) {
   return(
-    <Cell className="js-cell" onClick = {props.onClick}>
+    <Cell onClick = {props.onClick}>
       {props.value}
     </Cell>
  )
@@ -51,15 +68,15 @@ function Cells(props) {
 // Mainコンポーネント
 
 const AllBoard = styled.div`
-padding: 16px;
+  padding: 16px;
 `;
 const Table = styled.table`
-background-color: black;
-border: 2px solid #fefefe;
+  background-color: black;
+  border: 2px solid #fefefe;
 `;
 const Line = styled.div`
-display: flex;
-border-bottom: 1px solid black;
+  display: flex;
+  border-bottom: 1px solid black;
 `;
 
 const Game = styled.div`
@@ -74,18 +91,17 @@ class Main extends React.Component {
       counter: 0
     };
   }
-  handleClick(i) {
-    const newCells = this.state.cells.slice();
+  handleClick =(i) => {
+    const {cells,turnCircle,counter} = this.state;
+    const newCells = [...cells]
     if(newCells[i] || isWin(newCells)) {
       return;
     }
-    newCells[i] = this.state.turnCircle ? '○' : '×';
-    let newCounter = this.state.counter;
-    newCounter++;
+    newCells[i] = turnCircle ? '○' : '×';
     this.setState({
       cells: newCells,
-      turnCircle: !this.state.turnCircle,
-      counter: newCounter
+      turnCircle: !turnCircle,
+      counter: counter + 1
     });
   }
   renderCell(i) {
@@ -132,7 +148,8 @@ class Main extends React.Component {
 }
 
 // Displayコンポーネント
-
+const Test = styled.h1`
+`;
 const Top = styled.div`
 padding: 16px;
 `;
@@ -141,29 +158,20 @@ display: flex;
 justify-content: center;
 `;
 const TurnItem = styled.div`
-&.noActive {
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 8px 16px; 
-}
-&.active {
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 8px 16px;
-  border-bottom: 3px solid black;
-}
+font-size: 1.2rem;
+font-weight: bold;
+padding: 8px 16px; 
+border-bottom: ${(props) => props.active ? '3px solid black' : ''};
 `;
 
 class Display extends React.Component {
   render() {
-    const circleClass = this.props.turnCircle ? 'active' : 'noActive';
-    const crossClass = this.props.turnCircle ? 'noActive' : 'active';
     return(
       <Top>
-        <h1>TIC TAC TOE</h1>
+        <Test>TIC TAC TOE</Test>
         <Turn>
-          <TurnItem className={circleClass}>○</TurnItem>
-          <TurnItem className={crossClass}>×</TurnItem>
+          <TurnItem active = {this.props.turnCircle}>○</TurnItem>
+          <TurnItem active = {!this.props.turnCircle}>×</TurnItem>
         </Turn>
       </Top>   
     )
@@ -197,7 +205,7 @@ padding: 4px 16px;
 
 
 class Messages extends React.Component {
-  render() {
+  get resultText() {
     let result;
     if(isWin(this.props.cells)) {
       result = `${isWin(this.props.cells)} win`;
@@ -206,11 +214,13 @@ class Messages extends React.Component {
     }  else {
       result = 'processing';
     }
+    return result
+  }
+  render() {
     return(
       <Under>
-        <Message className="js-state-message">{result}</Message>
+        <Message>{this.resultText}</Message>
         <Button 
-          className="js-restart"
           onClick= {() => window.location.reload()}
           >Restart</Button>
       </Under>
